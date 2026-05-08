@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "council": {
-      "command": "python3",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/server.py"],
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/run.sh"],
       "env": {
         "COUNCIL_DB_PATH": "${HOME}/.dr-vitalis/council.db",
         "COUNCIL_DASHBOARD_PATH": "${HOME}/.dr-vitalis/dashboard.html",
