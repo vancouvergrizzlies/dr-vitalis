@@ -514,7 +514,7 @@ def refresh_all(max_posts: int = 200) -> dict[str, Any]:
 
 # ----- backfill (deep history) and cost estimation
 
-PRICE_PER_READ_USD = 0.005  # X API pay-per-use rate as of May 2026
+PRICE_PER_READ_USD = 0.01  # X API pay-per-use rate observed May 2026 (~$0.005-$0.01 per resource depending on call type; $0.01 is conservative)
 
 
 @mcp.tool()
@@ -569,8 +569,8 @@ def estimate_voice_cost(handle: str) -> dict[str, Any]:
 def estimate_council_cost() -> dict[str, Any]:
     """
     Estimate the cost to backfill EVERY voice in the council. Costs N reads
-    (one profile lookup per voice, ~$0.04 total for 8 voices). Returns a
-    breakdown so you can decide which voices warrant the deep backfill.
+    (one profile lookup per voice, ~$0.07-$0.14 for a typical 7-voice council).
+    Returns a breakdown so you can decide which voices warrant the deep backfill.
     """
     with db() as conn:
         rows = conn.execute("SELECT handle FROM voices ORDER BY handle").fetchall()

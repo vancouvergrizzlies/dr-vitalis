@@ -23,7 +23,14 @@ Dr. Vitalis closes that gap with three things:
 /plugin install dr-vitalis@dr-vitalis-marketplace
 ```
 
-A demo seed corpus is bundled, so the moment you install, you can ask a health question and see the synthesis happen with no setup. To replace the demo with live data from your own council, set `X_BEARER_TOKEN` (see below) and tell Dr. Vitalis to refresh.
+A **108-passage seed corpus is bundled** so the moment you install, you can ask a health question and see the synthesis happen with no X token, no API spend, no setup. The seed pulls from:
+
+- **BioavailableNd's Substack** (15 detailed articles on detox, mold, lymph, fertility) — weighted 2x
+- **Abud Bakri MD's Substack** (9 articles on hormones, peptides, biohacking)
+- **Paul Saladino's podcast** (10 most-recent episode descriptions)
+- **Carnivore Aurelius blog** (74 long-form posts on diet, organ meats, seed oils)
+
+Three voices ship empty in the seed (Sol Brah, Barbara O'Neill, Grimhood) because their content lives entirely on X (or YouTube, in O'Neill's case) — see *Optional: live X data* below to populate them.
 
 ## Required env vars
 
@@ -79,7 +86,7 @@ That's it. SQLite is built into Python.
 
 ## Cost expectations
 
-Pay-per-use X API pricing (May 2026): **$0.005 per post read**.
+Pay-per-use X API pricing (May 2026): **~$0.01 per post read** (X docs list $0.005 per "resource" but observed cost runs higher; budget conservatively at $0.01/read).
 
 Two endpoints with different lookback:
 
@@ -88,13 +95,15 @@ Two endpoints with different lookback:
 
 | Action | Reads | Cost |
 | --- | --- | --- |
-| Use the bundled demo | 0 | **$0** |
-| Estimate cost for full council | 8 (1/voice) | ~$0.04 |
-| Light refresh (8 voices × 200 posts) | 1,600 | ~$8 |
-| Recent backfill (8 voices × 3,200 cap) | 25,600 | ~$128 |
+| **Use the bundled demo** | 0 | **$0** |
+| Estimate cost for full council | 7 (1/voice) | ~$0.07 |
+| Light refresh (7 voices × 200 posts) | 1,400 | ~$14 |
+| Recent backfill (7 voices × 3,200 cap) | 22,400 | ~$224 |
 | **True full archive** (highly variable) | varies, often 100k–400k | **$500–2,000+** |
-| Ongoing refresh (200 new posts/voice/month) | 1,600/mo | ~$8/mo |
+| Ongoing refresh (200 new posts/voice/month) | 1,400/mo | ~$14/mo |
 | Council queries | 0 | $0 (local DB) |
+
+**Reality:** for the example council shipped in the seed, free long-form scraping (Substack RSS, podcast feeds, blog crawls) covers 4 of 7 voices richly, so most users only need to spend X credits on the 3 X-native voices. That's typically **$5–$15** for a meaningful corpus.
 
 **Always run `estimate_council_cost` first before any backfill.** It costs ~4¢ and tells you exactly what each voice's full archive would cost based on their real lifetime tweet count, so you can decide which voices warrant the deep backfill.
 
