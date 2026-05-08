@@ -4,6 +4,9 @@
 *.db-journal
 *.db-wal
 *.db-shm
+
+# Whitelist the bundled seed corpus (the only DB we want in the repo)
+!plugins/dr-vitalis/data/seed.db
 __pycache__/
 *.pyc
 .venv/
