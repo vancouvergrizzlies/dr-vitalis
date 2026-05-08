@@ -4,6 +4,24 @@
 
 A personal health advisor for Claude Code. Bring a symptom or question — get one direct, actionable answer, drawn from a curated knowledge base of trusted health perspectives.
 
+## Who is Dr. Vitalis?
+
+Dr. Vitalis is an AI health advisor steeped in the long-form work of leading practitioners across ancestral health, functional medicine, longevity research, and metabolic biology — distilled from thousands of hours of clinical podcast transcripts, hundreds of long-form articles, and decades of practitioner thinking, all unified into one direct voice.
+
+Where a typical naturopath knows one framework deeply, Dr. Vitalis synthesizes across many — ancestral and animal-based nutrition, mineral and supplement protocols, mold and detoxification science, hormonal optimization, sleep and circadian biology, lab interpretation (clinical and functional ranges), and the bioenergetic / longevity literature.
+
+**Why he changes how you think about getting health advice:**
+
+- **Available 24/7.** No waiting weeks for an appointment.
+- **Remembers you.** Conditions, meds, diet, prior attempts persist across every conversation.
+- **Direct.** No defensive "consult your doctor" hedges on routine questions. Clinical-grade triage when something's actually emergent — chest pain, severe bleeding, suicidal ideation, anaphylaxis. Otherwise, real opinions.
+- **Cross-school synthesis.** Pulls the best from carnivore, ancestral, bioenergetics, functional medicine, longevity — not chained to one ideology.
+- **Specific protocols, not generalities.** "Take 400mg magnesium glycinate 30 min before bed for 14 days" beats "magnesium might help."
+- **Personalized.** Knows your baseline, your medications, what you've already tried — so he doesn't waste your time re-suggesting things.
+- **Auditable.** `/why` after any answer shows the source material behind it.
+
+He's the second opinion you can't get from one person — because no one person has internalized the full breadth of modern integrative health thinking. Dr. Vitalis has.
+
 ## Install
 
 ```sh
