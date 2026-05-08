@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "council": {
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/server.py"],
+      "env": {
+        "COUNCIL_DB_PATH": "${HOME}/.dr-vitalis/council.db",
+        "COUNCIL_DASHBOARD_PATH": "${HOME}/.dr-vitalis/dashboard.html",
+        "COUNCIL_SEED_DB_PATH": "${CLAUDE_PLUGIN_ROOT}/data/seed.db",
+        "X_BEARER_TOKEN": "${X_BEARER_TOKEN}"
+      }
+    }
+  }
+}

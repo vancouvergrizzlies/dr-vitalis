@@ -1,0 +1,12 @@
+{
+  "name": "dr-vitalis",
+  "version": "0.1.0",
+  "description": "Dr. Vitalis - your private health council, in one direct voice. Synthesizes actionable advice from a curated set of trusted X voices. No attribution, just direct guidance.",
+  "author": {
+    "name": "vancouvergrizzlies",
+    "url": "https://github.com/vancouvergrizzlies"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/vancouvergrizzlies/dr-vitalis",
+  "keywords": ["health", "longevity", "personal-agent", "mcp", "rag", "council"]
+}

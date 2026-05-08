@@ -1,131 +1,118 @@
-# Health Jarvis
+# Dr. Vitalis
 
-> Personal health advisor that synthesizes actionable advice from your private council of trusted voices on X. Speaks as itself — no "expert X said Y," just direct guidance.
+> Your private council, in one direct voice.
+
+Dr. Vitalis is a personal health advisor for Claude Code. You curate a council of trusted X voices, and Dr. Vitalis silently ingests their thinking. When you ask a health question, you get one direct, actionable answer — synthesized invisibly from the council, not "expert X said Y." If you ever want to see the source tweets, type `/why`.
 
 Built for [Bounty No. 02 — Build Your Own Jarvis](https://anewall.com).
 
-## What it does
+## The wall this fixes
 
-You curate a council of health voices on X you trust. Health Jarvis pulls their
-recent posts via the official X API, indexes them locally with full-text search
-and weighting, and when you ask a health question, synthesizes one direct,
-actionable recommendation drawing on their thinking — without naming any of
-them. If you ever want to see the source tweets behind an answer, you type
-`/why`.
+Plain Claude doesn't know who *you* trust. The carnivore / ancestral-health / anti-establishment voices that actually move the needle for some users live in a specific corner of X that Claude can't see. So every health conversation starts from scratch with generic establishment-medicine answers.
 
-The wall in plain Claude that this fixes:
+Dr. Vitalis closes that gap with three things:
 
-> Plain Claude doesn't know who YOU trust, can't see new posts from these
-> specific people, forgets your health context every chat, and gives you
-> wishy-washy "consult a doctor" answers instead of opinions. This plugin
-> fixes all four.
+- **Memory** — your conditions, meds, diet, prior attempts, persisted across sessions
+- **Live data** — pulls posts from your council via the official X API and indexes them locally
+- **Synthesis** — one unified answer from the council's collective ethos, no attribution, no hedging
 
 ## Install
 
 ```sh
-/plugin marketplace add vancouvergrizzlies/health-jarvis
-/plugin install health-jarvis@health-jarvis-marketplace
+/plugin marketplace add vancouvergrizzlies/dr-vitalis
+/plugin install dr-vitalis@dr-vitalis-marketplace
 ```
 
-Then set up your X API access (see *Required env vars* below) and start adding
-voices.
+A demo seed corpus is bundled, so the moment you install, you can ask a health question and see the synthesis happen with no setup. To replace the demo with live data from your own council, set `X_BEARER_TOKEN` (see below) and tell Dr. Vitalis to refresh.
 
 ## Required env vars
 
 | Variable | Required | What |
 | --- | --- | --- |
-| `X_BEARER_TOKEN` | **Yes** for `refresh_voice` / `refresh_all` | Bearer token from your X dev app at [console.x.com](https://console.x.com). Pay-per-use pricing (~$0.005 per post read). |
-| `COUNCIL_DB_PATH` | Optional | Override database location. Default: `~/.health-jarvis/council.db` |
-| `COUNCIL_DASHBOARD_PATH` | Optional | Override dashboard HTML output. Default: `~/.health-jarvis/dashboard.html` |
+| `X_BEARER_TOKEN` | Required for live refresh; not needed to use the demo | Bearer token from your X dev app at [console.x.com](https://console.x.com). Pay-per-use pricing (~$0.005 per post read). |
+| `COUNCIL_DB_PATH` | Optional | Override database location. Default: `~/.dr-vitalis/council.db` |
+| `COUNCIL_DASHBOARD_PATH` | Optional | Override dashboard HTML output. Default: `~/.dr-vitalis/dashboard.html` |
+| `COUNCIL_SEED_DB_PATH` | Optional | Path to bundled seed DB. Default: plugin's `data/seed.db` |
 
-You can put these in your shell profile, or in a `.env` you source. The
-plugin's `.mcp.json` reads them from the environment that launches Claude.
+You can put these in your shell profile, or in a `.env` you source. The plugin's `.mcp.json` reads them from the environment that launches Claude.
 
 ## External dependencies
 
 - **Python 3.9+** (for the MCP server)
-- **`mcp` and `httpx` Python packages** — install with:
+- **`mcp` and `httpx` Python packages** — install once:
   ```sh
-  pip install -r ~/.claude/plugins/marketplaces/*/plugins/health-jarvis/mcp/requirements.txt
+  pip3 install mcp httpx
   ```
-  …or run the one-liner the plugin offers on first use.
 
 That's it. SQLite is built into Python.
 
 ## What's in the box
 
-- **MCP server (`council`)** — Python, SQLite + FTS5, talks to X API v2
-  - Tools: `add_voice`, `remove_voice`, `set_weight`, `list_voices`,
-    `refresh_voice`, `refresh_all`, `query_council`, `query_voice`,
-    `list_recent`, `save_passage`, `last_sources`,
-    `set_profile`, `get_profile`, `delete_profile_key`
-- **Skills**
-  - `health-context` — auto-loads your stored profile (conditions, meds,
-    diet, goals) on every health conversation
-  - `consult-council` — triggers on health questions, queries the corpus,
-    synthesizes one direct answer with no attribution
-- **Subagent**
-  - `research-symptom` — deeper investigations, returns a structured brief
-- **Hooks**
-  - `PostToolUse` on every council mutation → regenerates `dashboard.html`
-  - `SessionStart` → surfaces a one-line "Jarvis loaded" status with voice
-    count and last refresh time
-- **Slash commands**
-  - `/council list | refresh @handle | refresh-all | add @handle weight=N`
-  - `/why` — show the source passages behind Jarvis's last answer
-  - `/dashboard` — open the dashboard HTML in your browser
+**MCP server (`council`)** — Python, SQLite + FTS5, talks to X API v2
+
+| Tool | Purpose |
+|---|---|
+| `add_voice`, `remove_voice`, `set_weight`, `list_voices` | Manage the council |
+| `refresh_voice`, `refresh_all` | Incremental pulls (newest only) |
+| `backfill_voice`, `backfill_all` | Deep history (up to 3,200 cap or full archive) |
+| `estimate_voice_cost`, `estimate_council_cost` | Pre-spend cost estimation |
+| `query_council`, `query_voice`, `list_recent` | Search the corpus |
+| `save_passage` | Manual paste-in for content outside X |
+| `last_sources` | Audit trail for `/why` |
+| `set_profile`, `get_profile`, `delete_profile_key` | Persistent user health context |
+
+**Skills**
+- `health-context` — auto-loads your stored profile (conditions, meds, diet, goals) on every health conversation
+- `consult-council` — triggers on health questions, queries the corpus, synthesizes one direct answer with no attribution
+
+**Subagent**
+- `research-symptom` — deeper investigations, returns a structured brief
+
+**Hooks**
+- `PostToolUse` on every council mutation → regenerates `dashboard.html`
+- `SessionStart` → surfaces a one-line "Dr. Vitalis loaded" status with voice count and last refresh time
+
+**Slash commands**
+- `/council list | refresh @handle | refresh-all | add @handle weight=N`
+- `/why` — show the source passages behind Dr. Vitalis's last answer
+- `/dashboard` — open the dashboard HTML in your browser
 
 ## Cost expectations
 
 Pay-per-use X API pricing (May 2026): **$0.005 per post read**.
 
-There are two endpoints with different lookback:
+Two endpoints with different lookback:
 
-- **Timeline endpoint** (`refresh_voice`, `backfill_voice mode=recent`) —
-  capped by X at 3,200 most-recent tweets per user, regardless of what you pay
-- **Full-archive search** (`backfill_voice mode=full`) — back to account
-  creation in 2006, but costs the same per-tweet and may need entitlement on
-  your X dev account
+- **Timeline endpoint** (`refresh_voice`, `backfill_voice mode=recent`) — capped by X at 3,200 most-recent tweets per user, regardless of what you pay
+- **Full-archive search** (`backfill_voice mode=full`) — back to account creation in 2006, but costs the same per-tweet and may need entitlement on your X dev account
 
 | Action | Reads | Cost |
 | --- | --- | --- |
-| Estimate cost for full council | 8 (1/voice) | **~$0.04** |
+| Use the bundled demo | 0 | **$0** |
+| Estimate cost for full council | 8 (1/voice) | ~$0.04 |
 | Light refresh (8 voices × 200 posts) | 1,600 | ~$8 |
 | Recent backfill (8 voices × 3,200 cap) | 25,600 | ~$128 |
 | **True full archive** (highly variable) | varies, often 100k–400k | **$500–2,000+** |
 | Ongoing refresh (200 new posts/voice/month) | 1,600/mo | ~$8/mo |
 | Council queries | 0 | $0 (local DB) |
 
-**Always run `estimate_council_cost` first before any backfill.** It costs ~4¢
-and tells you exactly what each voice's full archive would cost based on their
-real lifetime tweet count, so you can decide which voices warrant the deep
-backfill and which just get the 3,200-tweet cap.
+**Always run `estimate_council_cost` first before any backfill.** It costs ~4¢ and tells you exactly what each voice's full archive would cost based on their real lifetime tweet count, so you can decide which voices warrant the deep backfill.
 
-The MCP uses `since_id` for incremental refreshes, so you only pay for new
-posts after the first backfill.
+The MCP uses `since_id` for incremental refreshes, so you only pay for new posts after the first backfill.
 
-**Cost guardrails:** every backfill tool accepts a `confirm_cost_usd` parameter.
-If estimated cost exceeds it, the call refuses to run. Use this to put a hard
-cap on accidental spend (e.g. `backfill_all(mode='full', confirm_cost_usd=50)`).
+**Cost guardrails:** every backfill tool accepts a `confirm_cost_usd` parameter. If estimated cost exceeds it, the call refuses to run. Use this for hard caps on accidental spend (e.g. `backfill_all(mode='full', confirm_cost_usd=50)`).
 
 ## Privacy
 
-Everything is local. The SQLite DB lives at `~/.health-jarvis/council.db` and
-never leaves your machine. The dashboard is a static HTML file at
-`~/.health-jarvis/dashboard.html`. The X API only sees your bearer token and
-the timeline requests it makes.
+Everything is local. The SQLite DB lives at `~/.dr-vitalis/council.db` and never leaves your machine. The dashboard is a static HTML file at `~/.dr-vitalis/dashboard.html`. The X API only sees your bearer token and the timeline requests it makes.
+
+The bundled demo corpus contains a small set of public posts from a sample council, intended as a working demo. If you replace the corpus with your own council, the new content stays on your machine.
 
 ## Bounty submission note
 
-**The wall I hit in plain Claude:** It forgets my health context — and more
-fundamentally, it has no idea who *I* trust. The carnivore / anti-seed-oil /
-ancestral-health voices I rely on aren't in any health database; they're in a
-specific corner of X that Claude can't see. So every health conversation
-started from scratch, with generic establishment-medicine answers I didn't
-want.
+**The wall I hit in plain Claude:** It forgets my health context — and more fundamentally, it has no idea who *I* trust. The carnivore / anti-seed-oil / ancestral-health voices I rely on aren't in any health database; they're in a specific corner of X that Claude can't see. So every health conversation started from scratch, with generic establishment-medicine answers I didn't want.
 
-**What was missing:** memory (my profile), live data (their posts), and
-synthesis (one voice, not a survey).
+**What was missing:** memory (my profile), live data (their posts), and synthesis (one voice, not a survey).
 
 This plugin closes all three.
 

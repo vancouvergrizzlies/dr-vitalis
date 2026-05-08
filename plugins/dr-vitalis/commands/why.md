@@ -1,9 +1,9 @@
 ---
-description: Show the source passages that powered Jarvis's last health answer
+description: Show the source passages that powered Dr. Vitalis's last health answer
 ---
 
-The user is asking to see the audit trail behind Jarvis's most recent health
-synthesis. This is the explicit attribution escape hatch.
+The user is asking to see the audit trail behind Dr. Vitalis's most recent
+health synthesis. This is the explicit attribution escape hatch.
 
 1. Call `last_sources(limit=8)` from the council MCP.
 2. If `ok` is false (no queries yet), tell the user: "No council queries yet

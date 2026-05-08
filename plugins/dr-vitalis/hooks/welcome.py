@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SessionStart hook: surface a one-line status banner for Health Jarvis when a
+SessionStart hook: surface a one-line status banner for Dr. Vitalis when a
 new session begins. Tells the user how many voices are loaded, when they last
 refreshed, and where the dashboard lives. Output goes to additionalContext so
 Claude sees it (and the user sees it via Claude's response, not as raw stdout).
@@ -16,11 +16,11 @@ from pathlib import Path
 
 DB_PATH = Path(os.environ.get(
     "COUNCIL_DB_PATH",
-    str(Path.home() / ".health-jarvis" / "council.db"),
+    str(Path.home() / ".dr-vitalis" / "council.db"),
 ))
 DASHBOARD_PATH = Path(os.environ.get(
     "COUNCIL_DASHBOARD_PATH",
-    str(Path.home() / ".health-jarvis" / "dashboard.html"),
+    str(Path.home() / ".dr-vitalis" / "dashboard.html"),
 ))
 
 
@@ -39,10 +39,11 @@ def main() -> None:
     if not DB_PATH.exists():
         # First run — gentle onboarding nudge
         msg = (
-            "Health Jarvis is installed but no council is loaded yet. "
-            "Set X_BEARER_TOKEN in your environment, then ask Jarvis to add "
+            "Dr. Vitalis is installed but no council is loaded yet. "
+            "Set X_BEARER_TOKEN in your environment, then ask Dr. Vitalis to add "
             "your trusted voices (e.g. 'add @paulsaladinomd to my council') "
-            "and refresh."
+            "and refresh. (A demo seed corpus is bundled — run /setup-demo "
+            "to load it without an X token.)"
         )
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": msg}}))
         return
@@ -56,7 +57,7 @@ def main() -> None:
         passages = conn.execute("SELECT COUNT(*) AS n FROM passages").fetchone()
         conn.close()
     except Exception as e:
-        print(f"[health-jarvis] welcome hook: {e}", file=sys.stderr)
+        print(f"[dr-vitalis] welcome hook: {e}", file=sys.stderr)
         sys.exit(0)
 
     n_voices = voices["n"] or 0
@@ -65,14 +66,14 @@ def main() -> None:
 
     if n_voices == 0:
         msg = (
-            "Health Jarvis is installed. Council is empty — ask Jarvis to add "
+            "Dr. Vitalis is installed. Council is empty — ask Dr. Vitalis to add "
             "your trusted voices (e.g. 'add @paulsaladinomd, weight 2x'), then "
             "say 'refresh the council' to pull recent posts. "
             f"Dashboard: file://{DASHBOARD_PATH}"
         )
     else:
         msg = (
-            f"Health Jarvis loaded · {n_voices} voices · {n_passages} passages · "
+            f"Dr. Vitalis loaded · {n_voices} voices · {n_passages} passages · "
             f"last refresh {_format_age(last)} · dashboard: file://{DASHBOARD_PATH}"
         )
 
@@ -88,5 +89,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"[health-jarvis] welcome hook failed: {e}", file=sys.stderr)
+        print(f"[dr-vitalis] welcome hook failed: {e}", file=sys.stderr)
     sys.exit(0)

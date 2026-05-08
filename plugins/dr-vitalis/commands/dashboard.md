@@ -1,13 +1,13 @@
 ---
-description: Open the Health Jarvis dashboard in your browser
+description: Open the Dr. Vitalis dashboard in your browser
 ---
 
 The user wants to open the dashboard.
 
 1. Run a small bash command to open the dashboard HTML in the default browser:
-   - macOS: `open "$HOME/.health-jarvis/dashboard.html"`
-   - Linux: `xdg-open "$HOME/.health-jarvis/dashboard.html"`
-   - Windows/WSL: `explorer.exe "$(wslpath -w "$HOME/.health-jarvis/dashboard.html")"`
+   - macOS: `open "$HOME/.dr-vitalis/dashboard.html"`
+   - Linux: `xdg-open "$HOME/.dr-vitalis/dashboard.html"`
+   - Windows/WSL: `explorer.exe "$(wslpath -w "$HOME/.dr-vitalis/dashboard.html")"`
 
    Detect the platform via `uname` and run the right one. If the file doesn't
    exist yet, tell the user to first add at least one voice with `/council

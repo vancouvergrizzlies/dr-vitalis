@@ -1,5 +1,5 @@
 ---
-description: Show or refresh your Health Jarvis council
+description: Show or refresh your Dr. Vitalis council
 argument-hint: [refresh | refresh-all | list]
 ---
 
@@ -9,7 +9,7 @@ Interpret the argument:
 
 - **No arguments** or **list** → call `list_voices` and present a clean
   table: handle · display name · weight · post count · last refresh.
-  Also include the dashboard path: `~/.health-jarvis/dashboard.html`.
+  Also include the dashboard path: `~/.dr-vitalis/dashboard.html`.
 
 - **refresh** → ask which voice (if not specified after "refresh"), then
   call `refresh_voice(handle, max_posts=200)`. Report the count of new

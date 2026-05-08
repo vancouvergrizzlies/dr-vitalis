@@ -1,21 +1,21 @@
 {
-  "name": "health-jarvis-marketplace",
+  "name": "dr-vitalis-marketplace",
   "owner": {
     "name": "vancouvergrizzlies",
     "url": "https://github.com/vancouvergrizzlies"
   },
   "metadata": {
-    "description": "Personal health agents that synthesize advice from a private council of trusted voices.",
+    "description": "Dr. Vitalis - your private council, in one direct voice.",
     "version": "0.1.0"
   },
   "plugins": [
     {
-      "name": "health-jarvis",
-      "source": "./plugins/health-jarvis",
-      "description": "Synthesizes actionable health advice from a curated council of trusted X voices. Skills, agent, hooks, and an MCP server that pulls from the official X API.",
+      "name": "dr-vitalis",
+      "source": "./plugins/dr-vitalis",
+      "description": "Personal health advisor. Synthesizes actionable advice from your private council of trusted X voices, in one direct voice. Skills, agent, hooks, and an MCP server pulling from the official X API.",
       "version": "0.1.0",
       "category": "health",
-      "tags": ["health", "longevity", "rag", "x-api", "mcp"]
+      "tags": ["health", "longevity", "rag", "x-api", "mcp", "personal-agent"]
     }
   ]
 }

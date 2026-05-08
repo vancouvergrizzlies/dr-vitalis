@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Health Jarvis - Council MCP Server
+Dr. Vitalis - Council MCP Server
 
 Stores a corpus of posts from a curated council of trusted voices, fetched from the
 official X (Twitter) API. Exposes search tools that return weighted, ranked passages
@@ -33,15 +33,41 @@ from mcp.server.fastmcp import FastMCP
 
 DB_PATH = Path(os.environ.get(
     "COUNCIL_DB_PATH",
-    str(Path.home() / ".health-jarvis" / "council.db"),
+    str(Path.home() / ".dr-vitalis" / "council.db"),
 ))
 DASHBOARD_PATH = Path(os.environ.get(
     "COUNCIL_DASHBOARD_PATH",
-    str(Path.home() / ".health-jarvis" / "dashboard.html"),
+    str(Path.home() / ".dr-vitalis" / "dashboard.html"),
 ))
 TEMPLATE_PATH = Path(__file__).parent.parent / "templates" / "dashboard.html"
+SEED_DB_PATH = Path(os.environ.get(
+    "COUNCIL_SEED_DB_PATH",
+    str(Path(__file__).parent.parent / "data" / "seed.db"),
+))
 
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _maybe_seed_from_bundle() -> None:
+    """
+    First-run seeding: if the user has no local DB but a bundled seed.db
+    exists in the plugin (data/seed.db), copy it. This lets installers see
+    the plugin work immediately without an X API key. The user can refresh
+    or replace the corpus once they wire up X_BEARER_TOKEN.
+    """
+    if DB_PATH.exists():
+        return
+    if not SEED_DB_PATH.exists():
+        return
+    try:
+        import shutil
+        shutil.copyfile(SEED_DB_PATH, DB_PATH)
+        print(f"[dr-vitalis] seeded local DB from bundled corpus: {SEED_DB_PATH}", file=sys.stderr)
+    except Exception as e:
+        print(f"[dr-vitalis] seed copy failed (continuing with empty DB): {e}", file=sys.stderr)
+
+
+_maybe_seed_from_bundle()
 
 X_API_BASE = "https://api.x.com/2"
 X_BEARER_TOKEN = os.environ.get("X_BEARER_TOKEN", "").strip()
@@ -301,7 +327,7 @@ def _to_unix(iso_ts: str | None) -> int | None:
 
 # --------------------------------------------------------------------------- mcp server
 
-mcp = FastMCP("health-jarvis-council")
+mcp = FastMCP("dr-vitalis-council")
 init_db()
 
 
@@ -1007,14 +1033,14 @@ def delete_profile_key(key: str) -> dict[str, Any]:
 # --------------------------------------------------------------------------- dashboard
 
 DASHBOARD_FALLBACK = """<!doctype html>
-<html><head><meta charset="utf-8"><title>Health Jarvis</title>
+<html><head><meta charset="utf-8"><title>Dr. Vitalis</title>
 <style>body{font:14px/1.5 ui-sans-serif,system-ui;max-width:840px;margin:32px auto;padding:0 16px;color:#222}
 h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:24px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px}
 table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1px solid #eee;text-align:left}
 .muted{color:#888}.weight{font-variant-numeric:tabular-nums}.pill{display:inline-block;padding:1px 6px;border-radius:8px;background:#f3f3f3;font-size:12px}
 code{background:#f6f6f6;padding:1px 4px;border-radius:3px}</style></head><body>
-<h1>Health Jarvis</h1>
-<p class="muted">Personal council dashboard · {{generated_at}}</p>
+<h1>Dr. Vitalis</h1>
+<p class="muted">Your private council, in one direct voice · {{generated_at}}</p>
 {{body}}
 </body></html>"""
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PostToolUse hook: regenerate the Health Jarvis dashboard whenever the council
+PostToolUse hook: regenerate the Dr. Vitalis dashboard whenever the council
 state changes. The MCP server already regenerates on every mutating call, but
 this hook is a belt-and-suspenders safety net so the dashboard stays fresh
 even if the user pokes the database via another route.
@@ -22,7 +22,7 @@ try:
     _regenerate_dashboard()
     # Quiet success — hooks should not spam stdout
 except Exception as e:
-    print(f"[health-jarvis hook] dashboard regen skipped: {e}", file=sys.stderr)
+    print(f"[dr-vitalis hook] dashboard regen skipped: {e}", file=sys.stderr)
 
 # Always exit 0 so the hook never blocks Claude
 sys.exit(0)
