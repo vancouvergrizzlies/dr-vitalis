@@ -1,0 +1,12 @@
+{
+  "name": "health-jarvis",
+  "version": "0.1.0",
+  "description": "Personal health advisor that synthesizes actionable advice from a private council of trusted X voices. Speaks as itself — no attribution, just direct guidance.",
+  "author": {
+    "name": "vancouvergrizzlies",
+    "url": "https://github.com/vancouvergrizzlies"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/vancouvergrizzlies/health-jarvis",
+  "keywords": ["health", "longevity", "personal-agent", "mcp", "rag"]
+}

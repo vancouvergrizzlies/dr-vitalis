@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__council__add_voice|mcp__council__remove_voice|mcp__council__set_weight|mcp__council__refresh_voice|mcp__council__refresh_all|mcp__council__backfill_voice|mcp__council__backfill_all|mcp__council__save_passage|mcp__council__set_profile|mcp__council__delete_profile_key|mcp__council__query_council|mcp__council__query_voice",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/regenerate_dashboard.py\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/welcome.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "health-jarvis-marketplace",
+  "owner": {
+    "name": "vancouvergrizzlies",
+    "url": "https://github.com/vancouvergrizzlies"
+  },
+  "metadata": {
+    "description": "Personal health agents that synthesize advice from a private council of trusted voices.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "health-jarvis",
+      "source": "./plugins/health-jarvis",
+      "description": "Synthesizes actionable health advice from a curated council of trusted X voices. Skills, agent, hooks, and an MCP server that pulls from the official X API.",
+      "version": "0.1.0",
+      "category": "health",
+      "tags": ["health", "longevity", "rag", "x-api", "mcp"]
+    }
+  ]
+}

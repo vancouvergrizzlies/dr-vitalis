@@ -1,0 +1,14 @@
+.env
+.env.local
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+node_modules/
+.health-jarvis/
+dashboard.html
