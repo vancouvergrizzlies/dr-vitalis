@@ -83,7 +83,8 @@ CREATE TABLE IF NOT EXISTS voices (
     weight      REAL NOT NULL DEFAULT 1.0,
     notes       TEXT,
     added_at    INTEGER NOT NULL,
-    refreshed_at INTEGER
+    refreshed_at INTEGER,
+    recency_half_life_days INTEGER NOT NULL DEFAULT 180  -- per-voice recency curve; lower = newer content weighted more
 );
 
 CREATE TABLE IF NOT EXISTS passages (
@@ -152,6 +153,11 @@ def db() -> Iterator[sqlite3.Connection]:
 def init_db() -> None:
     with db() as conn:
         conn.executescript(SCHEMA)
+        # Migration: add recency_half_life_days column to existing DBs (idempotent)
+        try:
+            conn.execute("ALTER TABLE voices ADD COLUMN recency_half_life_days INTEGER NOT NULL DEFAULT 180")
+        except sqlite3.OperationalError:
+            pass  # column already exists
 
 
 # --------------------------------------------------------------------------- X API
@@ -400,6 +406,30 @@ def set_weight(handle: str, weight: float) -> dict[str, Any]:
         cur = conn.execute("UPDATE voices SET weight = ? WHERE handle = ?", (weight, handle))
     _regenerate_dashboard()
     return {"ok": cur.rowcount > 0, "voice": handle, "weight": weight}
+
+
+@mcp.tool()
+def set_recency_half_life(handle: str, days: int) -> dict[str, Any]:
+    """
+    Set the recency half-life (in days) for a voice. Newer content gets ranked
+    higher; older content decays.
+
+    - 90 days: aggressive (Saladino-style — voice has evolved their views)
+    - 180 days: default (mild boost for recent)
+    - 365+ days: nearly no recency tilt (voice's older content is still valid)
+    - 9999: effectively no recency adjustment
+
+    Use when a voice has clearly shifted their position over time (e.g. Saladino
+    pivoting from full-carnivore to animal-based) and you want their newer
+    thinking to dominate.
+    """
+    handle = handle.lstrip("@").strip()
+    if days < 7:
+        return {"ok": False, "error": "days must be >= 7"}
+    with db() as conn:
+        cur = conn.execute("UPDATE voices SET recency_half_life_days = ? WHERE handle = ?", (days, handle))
+    _regenerate_dashboard()
+    return {"ok": cur.rowcount > 0, "voice": handle, "recency_half_life_days": days}
 
 
 @mcp.tool()
@@ -795,13 +825,12 @@ def query_council(query: str, top_k: int = 8, recency_boost: bool = True) -> dic
 
     fts_q = _fts_query(query)
     now = int(time.time())
-    half_life = 180 * 86400  # 6 months
 
     with db() as conn:
         rows = conn.execute(
             f"""
             SELECT p.id, p.voice, p.source_id, p.source_url, p.text, p.posted_at, p.fetched_at,
-                   v.weight, v.display,
+                   v.weight, v.display, v.recency_half_life_days,
                    bm25(passages_fts) AS bm25
             FROM passages_fts
             JOIN passages p ON p.id = passages_fts.rowid
@@ -820,8 +849,11 @@ def query_council(query: str, top_k: int = 8, recency_boost: bool = True) -> dic
         weighted = base * float(r["weight"])
         if recency_boost and r["posted_at"]:
             age = max(0, now - int(r["posted_at"]))
+            half_life_days = r["recency_half_life_days"] or 180
+            half_life = half_life_days * 86400
             decay = 0.5 ** (age / half_life)
-            weighted *= 0.5 + 0.5 * decay  # at most 1x for fresh, 0.5x for ancient
+            # newer = up to 1.0x boost; ancient = down to 0.5x
+            weighted *= 0.5 + 0.5 * decay
         scored.append((weighted, r))
     scored.sort(key=lambda x: x[0], reverse=True)
 
