@@ -107,6 +107,55 @@ def upload_date_to_unix(d: str) -> int | None:
     except Exception:
         return None
 
+# ----- chunking -----
+
+def chunk_text(text: str, target_size: int = 4000, overlap: int = 200) -> list[str]:
+    """
+    Split a long transcript into ~target_size-char chunks with small overlap.
+
+    Boundary preference:
+      1. Speaker change (">>")
+      2. Paragraph break ("\n\n")
+      3. Sentence end (". ")
+      4. Word boundary (" ")
+
+    Overlap: last `overlap` chars of chunk N appear at start of chunk N+1 so
+    concepts spanning the boundary are still retrievable.
+    """
+    if len(text) <= target_size:
+        return [text] if text.strip() else []
+
+    chunks: list[str] = []
+    pos = 0
+    n = len(text)
+    while pos < n:
+        end = min(pos + target_size, n)
+        if end >= n:
+            chunks.append(text[pos:].strip())
+            break
+        # Look back from end for a good split point
+        window = text[pos:end]
+        # Prefer speaker change near end
+        split_rel = window.rfind(">>")
+        if split_rel < target_size * 0.6:  # too far back, try next
+            split_rel = window.rfind("\n\n")
+            if split_rel < target_size * 0.6:
+                split_rel = window.rfind(". ")
+                if split_rel < target_size * 0.6:
+                    split_rel = window.rfind(" ")
+                else:
+                    split_rel += 2  # past the ". "
+        if split_rel <= 0:
+            split_rel = target_size
+        chunk = text[pos:pos + split_rel].strip()
+        if chunk:
+            chunks.append(chunk)
+        # advance with overlap
+        pos = pos + split_rel - overlap
+        if pos <= 0:
+            pos = split_rel  # shouldn't happen but safety
+    return [c for c in chunks if len(c) >= 100]
+
 # ----- main -----
 
 def main() -> None:
@@ -135,23 +184,25 @@ def main() -> None:
 
     print(f"Found SRTs for {len(files_by_id)} unique videos")
 
-    # check what's already in DB
+    # check which videos are already chunked in DB (by source_url, since chunks
+    # share the same URL but have different source_ids like yt-VID-chunk-0..N)
     conn = sqlite3.connect(DB)
     conn.row_factory = sqlite3.Row
-    existing = set(r["source_id"] for r in conn.execute(
-        "SELECT source_id FROM passages WHERE voice = ? AND kind = 'youtube_transcript'",
+    existing_urls = set(r["source_url"] for r in conn.execute(
+        "SELECT DISTINCT source_url FROM passages WHERE voice = ? AND kind = 'youtube_transcript'",
         ("paulsaladinomd",)
     ).fetchall())
-    print(f"Already in DB: {len(existing)} Saladino transcripts")
+    print(f"Already in DB: {len(existing_urls)} Saladino video URLs (across all chunks)")
 
-    inserted = 0
+    videos_processed = 0
+    chunks_inserted = 0
     skipped_short = 0
     skipped_existing = 0
     now = int(time.time())
 
     for vid, files in files_by_id.items():
-        full_source_id = f"yt-{vid}"
-        if full_source_id in existing:
+        url = f"https://www.youtube.com/watch?v={vid}"
+        if url in existing_urls:
             skipped_existing += 1
             continue
         # prefer en-orig, then en, then en-en-US, then anything
@@ -167,17 +218,27 @@ def main() -> None:
         meta = metadata.get(vid, {})
         title = meta.get("title", f"Saladino video {vid}")
         upload = upload_date_to_unix(meta.get("upload_date", ""))
-        url = f"https://www.youtube.com/watch?v={vid}"
         full_text = f"{title}\n\n{text}"
-        try:
-            conn.execute("""INSERT OR IGNORE INTO passages
-                            (voice, source_id, source_url, text, posted_at, fetched_at, kind)
-                            VALUES (?, ?, ?, ?, ?, ?, 'youtube_transcript')""",
-                         ("paulsaladinomd", full_source_id, url, full_text, upload, now))
-            if conn.total_changes > 0:
-                inserted += 1
-        except sqlite3.Error as e:
-            print(f"  db error {vid}: {e}", file=sys.stderr)
+        # chunk
+        pieces = chunk_text(full_text, target_size=4000, overlap=200)
+        for i, piece in enumerate(pieces):
+            chunk_sid = f"yt-{vid}-chunk-{i}"
+            # Add chunk metadata header so it's clear which episode this came from
+            chunk_text_with_header = (
+                f"[{title} — part {i+1}/{len(pieces)}]\n\n{piece}"
+                if i > 0  # first chunk already has the title from full_text
+                else piece
+            )
+            try:
+                conn.execute("""INSERT OR IGNORE INTO passages
+                                (voice, source_id, source_url, text, posted_at, fetched_at, kind)
+                                VALUES (?, ?, ?, ?, ?, ?, 'youtube_transcript')""",
+                             ("paulsaladinomd", chunk_sid, url, chunk_text_with_header, upload, now))
+                if conn.total_changes > 0:
+                    chunks_inserted += 1
+            except sqlite3.Error as e:
+                print(f"  db error {vid} chunk {i}: {e}", file=sys.stderr)
+        videos_processed += 1
 
     conn.commit()
 
@@ -187,14 +248,19 @@ def main() -> None:
         "SELECT COUNT(*) AS n FROM passages WHERE voice='paulsaladinomd' AND kind='youtube_transcript'"
     ).fetchone()["n"]
     sal_total = conn.execute("SELECT COUNT(*) AS n FROM passages WHERE voice='paulsaladinomd'").fetchone()["n"]
+    sal_videos = conn.execute(
+        "SELECT COUNT(DISTINCT source_url) AS n FROM passages WHERE voice='paulsaladinomd' AND kind='youtube_transcript'"
+    ).fetchone()["n"]
     conn.close()
 
     print()
-    print(f"  inserted: {inserted}")
+    print(f"  videos processed: {videos_processed}")
+    print(f"  chunks inserted: {chunks_inserted}")
     print(f"  skipped (already in DB): {skipped_existing}")
     print(f"  skipped (too short): {skipped_short}")
     print()
-    print(f"Saladino YouTube transcripts in DB: {sal_yt}")
+    print(f"Saladino unique videos: {sal_videos}")
+    print(f"Saladino YouTube chunks: {sal_yt}")
     print(f"Saladino total passages: {sal_total}")
     print(f"Council total passages: {total}")
 
