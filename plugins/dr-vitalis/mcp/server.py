@@ -1072,7 +1072,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:6px 8px;border-bottom:1p
 .muted{color:#888}.weight{font-variant-numeric:tabular-nums}.pill{display:inline-block;padding:1px 6px;border-radius:8px;background:#f3f3f3;font-size:12px}
 code{background:#f6f6f6;padding:1px 4px;border-radius:3px}</style></head><body>
 <h1>Dr. Vitalis</h1>
-<p class="muted">Your private council, in one direct voice · {{generated_at}}</p>
+<p class="muted">Your private health advisor, in one direct voice · {{generated_at}}</p>
 {{body}}
 </body></html>"""
 
@@ -1106,14 +1106,23 @@ def _regenerate_dashboard() -> None:
             f"<td>{v['post_count']}</td>"
             f"<td class='muted'>{_format_ts(v['refreshed_at'])}</td></tr>"
             for v in voices
-        ) or "<tr><td colspan=5 class='muted'>No voices yet. Ask Jarvis to add some.</td></tr>"
+        ) or "<tr><td colspan=5 class='muted'>No voices loaded.</td></tr>"
 
         queries_html = "\n".join(
             f"<tr><td class='muted'>{_format_ts(q['created_at'])}</td>"
             f"<td>{(q['query'] or '').replace('<','&lt;')[:140]}</td>"
-            f"<td class='muted'>{('@' + q['voice']) if q['voice'] else 'council'}</td></tr>"
+            f"<td class='muted'>{('@' + q['voice']) if q['voice'] else 'all voices'}</td></tr>"
             for q in recent_q
         ) or "<tr><td colspan=3 class='muted'>No queries yet.</td></tr>"
+
+        # Knowledge Gaps panel — best-effort, never blocks dashboard render
+        gaps_html = ""
+        try:
+            from analyze_gaps import analyze, render_html  # type: ignore
+            gaps_report = analyze(DB_PATH, min_queries=20)
+            gaps_html = render_html(gaps_report)
+        except Exception as e:
+            gaps_html = f"<p class='muted'><em>Gaps panel unavailable: {e}</em></p>"
 
         profile_html = "\n".join(
             f"<tr><td><code>{p['key']}</code></td><td>{(p['value'] or '').replace('<','&lt;')}</td></tr>"
@@ -1122,14 +1131,16 @@ def _regenerate_dashboard() -> None:
 
         body = f"""
 <p><span class='pill'>{len(voices)} voices</span> <span class='pill'>{total_passages} passages</span></p>
-<h2>Council</h2>
-<table><thead><tr><th>Handle</th><th>Name</th><th>Weight</th><th>Posts</th><th>Last refresh</th></tr></thead>
+<h2>Voices</h2>
+<table><thead><tr><th>Handle</th><th>Name</th><th>Weight</th><th>Passages</th><th>Last refresh</th></tr></thead>
 <tbody>{rows_html}</tbody></table>
 <h2>Your profile</h2>
 <table><tbody>{profile_html}</tbody></table>
 <h2>Recent queries</h2>
 <table><thead><tr><th>When</th><th>Query</th><th>Scope</th></tr></thead>
 <tbody>{queries_html}</tbody></table>
+<h2>Knowledge gaps</h2>
+{gaps_html}
 """
         # Use template if present, else fallback
         tmpl = TEMPLATE_PATH.read_text() if TEMPLATE_PATH.exists() else DASHBOARD_FALLBACK

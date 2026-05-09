@@ -1,27 +1,18 @@
 ---
-description: Show or refresh your Dr. Vitalis council
-argument-hint: [refresh | refresh-all | list]
+description: Show the voices Dr. Vitalis is drawing from
 ---
 
-The user invoked the `/council` command with arguments: **$ARGUMENTS**
+The user invoked `/dr-vitalis:council` to see the lineup of voices powering
+Dr. Vitalis.
 
-Interpret the argument:
+1. Call `list_voices` from the council MCP.
+2. Present a clean table sorted by passage count (descending):
 
-- **No arguments** or **list** → call `list_voices` and present a clean
-  table: handle · display name · weight · post count · last refresh.
-  Also include the dashboard path: `~/.dr-vitalis/dashboard.html`.
+   | Voice | Display name | Weight | Passages |
+   |---|---|---|---|
 
-- **refresh** → ask which voice (if not specified after "refresh"), then
-  call `refresh_voice(handle, max_posts=200)`. Report the count of new
-  passages added.
+3. End with the dashboard path: `file://${HOME}/.dr-vitalis/dashboard.html`
+4. End with a one-line note: _"Run `/dr-vitalis:gaps` to see which topics
+   Dr. Vitalis's coverage is thin on."_
 
-- **refresh-all** → call `refresh_all(max_posts=200)`. Warn the user this
-  costs roughly `voices × max_posts × $0.005` against their X API balance
-  before running. Then summarize the results: per-voice new passage counts.
-
-- **add @handle [weight=N]** → call `add_voice(handle, weight)`. If they
-  didn't specify a weight, default to 1.0. Then offer to refresh that voice.
-
-- **anything else** → tell the user the supported subcommands.
-
-Be terse. This is a status command, not a chat.
+Be terse. This is a status command, not a chat. Don't editorialize the lineup.

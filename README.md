@@ -1,6 +1,6 @@
 # Dr. Vitalis
 
-> Your private health council, in one direct voice.
+> Your private health advisor, in one direct voice.
 
 A personal health advisor for Claude Code. Bring a symptom or question — get one direct, actionable answer, drawn from a curated knowledge base of trusted health perspectives.
 
@@ -18,7 +18,8 @@ Where a typical naturopath knows one framework deeply, Dr. Vitalis synthesizes a
 - **Cross-school synthesis.** Pulls the best from carnivore, ancestral, bioenergetics, functional medicine, longevity — not chained to one ideology.
 - **Specific protocols, not generalities.** "Take 400mg magnesium glycinate 30 min before bed for 14 days" beats "magnesium might help."
 - **Personalized.** Knows your baseline, your medications, what you've already tried — so he doesn't waste your time re-suggesting things.
-- **Auditable.** `/why` after any answer shows the source material behind it.
+- **Self-aware.** `/dr-vitalis:gaps` shows you which topics Dr. Vitalis is thin on, so you know where his answers will be weakest.
+- **Auditable.** `/dr-vitalis:why` after any answer shows the source material behind it.
 
 He's the second opinion you can't get from one person — because no one person has internalized the full breadth of modern integrative health thinking. Dr. Vitalis has.
 
@@ -29,47 +30,44 @@ He's the second opinion you can't get from one person — because no one person 
 /plugin install dr-vitalis@dr-vitalis-marketplace
 ```
 
-A working knowledge base ships bundled with the plugin, so you can ask questions immediately — no API keys or setup required for read-only use.
+The bundled knowledge base ships with the plugin and is fixed — you ask questions, Dr. Vitalis answers from what he knows. No API keys, no configuration, no editing required.
 
 ## Requirements
 
-- **Python 3.9+** (for the MCP server)
-- One-time install of two Python packages:
-  ```sh
-  pip3 install mcp httpx
-  ```
+- **Python 3.10+** (for the MCP server)
+- The plugin's wrapper script (`mcp/run.sh`) auto-detects:
+  1. A dedicated venv at `~/.dr-vitalis/venv` (recommended), OR
+  2. Any system Python 3.10+ that has `mcp` and `httpx` installed.
+
+If neither is present, the wrapper prints a one-line setup command and exits cleanly. The recommended one-time setup:
+
+```sh
+brew install python@3.12
+python3.12 -m venv ~/.dr-vitalis/venv
+~/.dr-vitalis/venv/bin/pip install mcp httpx
+```
 
 That's it. SQLite is built into Python.
 
-## Optional: live data refresh
-
-To keep the knowledge base fresh with content from public sources, set:
-
-```sh
-export X_BEARER_TOKEN="your-token-here"
-```
-
-Get a token at [console.x.com](https://console.x.com). Without it, the plugin still works fully against the bundled corpus — refresh is optional.
-
 ## What you get
 
-- **Persistent memory** — Dr. Vitalis remembers your conditions, medications, diet, goals across sessions
 - **Direct answers** — no "consult your doctor" hedging on routine questions; clinical-grade triage when actually warranted
-- **Local-first** — all data stays on your machine in `~/.dr-vitalis/`
-- **Dashboard** — auto-updated HTML view of your knowledge base at `~/.dr-vitalis/dashboard.html`
-- **Audit trail** — `/why` after any answer shows the source material
+- **Persistent memory** — Dr. Vitalis remembers your conditions, medications, diet, and goals across sessions
+- **Local-first** — everything runs on your machine in `~/.dr-vitalis/`. Nothing leaves.
+- **Dashboard** — auto-updated HTML view at `~/.dr-vitalis/dashboard.html`, including a Knowledge Gaps panel that surfaces what Dr. Vitalis is thin on
+- **Audit trail** — `/dr-vitalis:why` after any answer shows the source passages behind it
 
 ## Slash commands
 
 | Command | Purpose |
 |---|---|
-| `/dashboard` | Open the local dashboard in your browser |
-| `/why` | Show source passages for the most recent answer |
-| `/council` | Manage your knowledge base |
+| `/dr-vitalis:dashboard` | Open the local dashboard in your browser |
+| `/dr-vitalis:why` | Show source passages for the most recent answer |
+| `/dr-vitalis:gaps` | Surface topics where Dr. Vitalis's coverage is thin |
 
 ## Privacy
 
-Everything runs locally. The knowledge base lives at `~/.dr-vitalis/council.db` on your machine and never leaves it. The dashboard is a static HTML file. No telemetry. No external services unless you explicitly configure live refresh.
+Everything runs locally. Your data lives at `~/.dr-vitalis/council.db` on your machine and never leaves it. The dashboard is a static HTML file. No telemetry. No external services.
 
 ## License
 

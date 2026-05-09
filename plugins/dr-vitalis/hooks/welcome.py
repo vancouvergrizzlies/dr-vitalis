@@ -39,11 +39,10 @@ def main() -> None:
     if not DB_PATH.exists():
         # First run — gentle onboarding nudge
         msg = (
-            "Dr. Vitalis is installed but no council is loaded yet. "
-            "Set X_BEARER_TOKEN in your environment, then ask Dr. Vitalis to add "
-            "your trusted voices (e.g. 'add @paulsaladinomd to my council') "
-            "and refresh. (A demo seed corpus is bundled — run /setup-demo "
-            "to load it without an X token.)"
+            "Dr. Vitalis is installed but his knowledge base hasn't loaded yet. "
+            "If you installed via the marketplace, the bundled corpus should appear "
+            "automatically on next session. If it doesn't, the seed file is at "
+            "${CLAUDE_PLUGIN_ROOT}/data/seed.db — copy it to ~/.dr-vitalis/council.db."
         )
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": msg}}))
         return
@@ -66,9 +65,8 @@ def main() -> None:
 
     if n_voices == 0:
         msg = (
-            "Dr. Vitalis is installed. Council is empty — ask Dr. Vitalis to add "
-            "your trusted voices (e.g. 'add @paulsaladinomd, weight 2x'), then "
-            "say 'refresh the council' to pull recent posts. "
+            "Dr. Vitalis is installed. The bundled corpus appears empty — try "
+            "restarting Claude Code, or check that ~/.dr-vitalis/council.db exists. "
             f"Dashboard: file://{DASHBOARD_PATH}"
         )
     else:

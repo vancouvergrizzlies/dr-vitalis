@@ -5,17 +5,17 @@
     "url": "https://github.com/vancouvergrizzlies"
   },
   "metadata": {
-    "description": "Dr. Vitalis - your private council, in one direct voice.",
-    "version": "0.1.0"
+    "description": "Dr. Vitalis — your private health advisor, in one direct voice.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "dr-vitalis",
       "source": "./plugins/dr-vitalis",
-      "description": "Personal health advisor. Synthesizes actionable advice from your private council of trusted X voices, in one direct voice. Skills, agent, hooks, and an MCP server pulling from the official X API.",
-      "version": "0.1.0",
+      "description": "Personal health advisor in one direct voice. Synthesizes actionable advice across nutrition, herbal, and longevity domains, with skills + agents + hooks + an MCP server. Self-aware: surfaces his own knowledge gaps via /dr-vitalis:gaps.",
+      "version": "0.2.0",
       "category": "health",
-      "tags": ["health", "longevity", "rag", "x-api", "mcp", "personal-agent"]
+      "tags": ["health", "longevity", "rag", "mcp", "personal-agent", "self-aware"]
     }
   ]
 }

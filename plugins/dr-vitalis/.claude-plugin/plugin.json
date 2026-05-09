@@ -1,7 +1,7 @@
 {
   "name": "dr-vitalis",
-  "version": "0.1.0",
-  "description": "Dr. Vitalis - your private health council, in one direct voice. Synthesizes actionable advice from a curated set of trusted X voices. No attribution, just direct guidance.",
+  "version": "0.2.0",
+  "description": "Dr. Vitalis — your private health advisor, in one direct voice. Synthesizes actionable advice across nutrition, herbal, and longevity domains. Self-aware: surfaces his own knowledge gaps so you know where his answers will be weakest.",
   "author": {
     "name": "vancouvergrizzlies",
     "url": "https://github.com/vancouvergrizzlies"
